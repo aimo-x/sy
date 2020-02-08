@@ -1,5 +1,5 @@
 {
-  "host":"https://t.iuu.pub",
+  "host":"http://127.0.0.1",
   "port":"80",
   "is_ssl":true,
   "ssl_key":"./ssl/3209803_t.iuu.pub.key",

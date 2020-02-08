@@ -10,15 +10,21 @@ var err error
 
 // New 开始
 func New() {
+	/*
+		err = app.AutoMigrate()
+		if err != nil {
+			panic(err)
+		}
+	*/
 	HTTPServe()
-
 }
 
 // HTTPServe port
 func HTTPServe() {
-	e := gin.New()
+	e := gin.Default()
+	e.Use(middleware)
 	web(e)
-	api(e.Group("api"))
+	api(e.Group("v2/api"))
 	err = e.Run(":" + cf.Port)
 	if err != nil {
 		panic(err)
@@ -34,4 +40,19 @@ func HTTPServeTLS(e *gin.Engine) {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func middleware(c *gin.Context) {
+	c.Writer.Header().Set("taobao", "acad.taobao.com")
+	c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+	c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+	c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+	c.Writer.Header().Set("Access-Control-Allow-Headers", "Access-Token")
+	c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
+	c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE")
+	if c.Request.Method == "OPTIONS" {
+		c.AbortWithStatus(204)
+		return
+	}
+	c.Next()
 }
