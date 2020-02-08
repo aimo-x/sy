@@ -1,7 +1,6 @@
 package app
 
 import (
-	"fmt"
 	"strconv"
 	"time"
 
@@ -123,7 +122,7 @@ func (mfc *MugedaFormContent) ExportCSV(c *gin.Context) {
 		rwErr("db.Where.Delete", err, c)
 		return
 	}
-	fmt.Println(mfcs)
+	// fmt.Println(mfcs)
 	header := []string{"姓名", "职业", "公司", "邮箱", "提交时间"} //标题
 	columns := [][]string{
 		header,

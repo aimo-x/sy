@@ -1,6 +1,7 @@
 package sy
 
 import (
+	"github.com/aimo-x/sy/app"
 	"github.com/aimo-x/sy/conf"
 	"github.com/gin-gonic/gin"
 )
@@ -10,12 +11,12 @@ var err error
 
 // New 开始
 func New() {
-	/*
-		err = app.AutoMigrate()
-		if err != nil {
-			panic(err)
-		}
-	*/
+
+	err = app.AutoMigrate()
+	if err != nil {
+		panic(err)
+	}
+
 	HTTPServe()
 }
 
@@ -24,6 +25,8 @@ func HTTPServe() {
 	e := gin.Default()
 	e.Use(middleware)
 	web(e)
+
+	e.StaticFS("v2/usr", gin.Dir("./usr", false))
 	api(e.Group("v2/api"))
 	err = e.Run(":" + cf.Port)
 	if err != nil {
