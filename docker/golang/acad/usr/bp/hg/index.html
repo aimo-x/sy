@@ -1,0 +1,66 @@
+<!DOCTYPE html><html><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,minimal-ui,viewport-fit=cover"><title>火锅嘉年华</title><style>html,
+      body,
+      p,
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6,
+      ul,
+      li {
+        margin: 0;
+        padding: 0;
+      }
+      li {
+        list-style: none;
+      }
+      html,
+      body {
+        height: 100%;
+        max-width: 440px;
+        margin: 0 auto;
+      }
+      html {
+        font-size: 20px;
+      }
+      body {
+        font-family: "Avenir", Helvetica, Arial, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }</style><link href=
+https://s3.iuu.pub/static/css/app.f57d7c75fe14dcd9e1134411adf2d124.css rel=stylesheet></head><body><div class=loading id=loading><span class=logo></span><div class=process><div class=active id=active><span class=panda></span></div></div></div><div id=app></div><script type=text/javascript src=
+https://s3.iuu.pub/static/js/manifest.2ae2e69a05c33dfc65f8.js></script><script type=text/javascript src=
+https://s3.iuu.pub/static/js/vendor.605865da8b55164e4255.js></script><script type=text/javascript src=
+https://s3.iuu.pub/static/js/app.5eb0126ac91c9d0436b7.js></script></body><script>var screenWith = document.body.clientWidth;
+    document.body.style.height = 8782 * (screenWith / 750) + "px";
+
+    var loading = document.getElementById("loading");
+    var activeBar = document.getElementById("active");
+    loading.addEventListener("touchmove", e => e.preventDefault(), false);
+    var finished = 0;
+    var timer = null;
+    function sport(start) {
+      if (1 - start < 0.05) {
+        return;
+      }
+      finished += Math.random() * (1 - start) * 0.5;
+      activeBar.style.width = finished.toFixed(2) * 100 + "%";
+      timer = setTimeout(() => {
+        sport(finished);
+      }, 500);
+    }
+    timer = setTimeout(function() {
+      sport(0);
+    }, 0);
+    window.onload = function() {
+      clearTimeout(timer);
+      activeBar.style.width = "100%";
+      setTimeout(() => {
+        loading.className = "loading hide";
+        window.scroll(0,0);
+        setTimeout(() => {
+          loading.remove();
+        }, 300);
+      }, 800);
+    };</script></html>

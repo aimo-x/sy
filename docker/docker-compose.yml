@@ -1,0 +1,42 @@
+version: "3.3"
+# 管理的服务
+services:
+  nginx1175:
+    image: nginx:1.17.5
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "${NGINX_DIR}:/var/www/html"
+      - "${NGINX_CONF}:/etc/nginx/conf.d"
+      - "${NGINX_LOG}:/var/log/nginx"
+    networks:
+      - webnet
+  acad:
+    image: golang:1.13.4-buster
+    ports:
+      - "8081:8081"
+    volumes:
+      - "${GOLANG}:/var/www/golang"
+    working_dir:
+      /var/www/golang/acad/
+    command:
+      # 执行的命令
+      ./acad
+    networks:
+      - webnet
+  sy:
+    image: golang:1.13.4-buster
+    ports:
+      - "8081:8082"
+    volumes:
+      - "${GOLANG}:/var/golang"
+    working_dir:
+      /var/golang/sy/
+    command:
+      # 执行的命令
+      ./sy
+    networks:
+      - webnet
+networks:
+  webnet:

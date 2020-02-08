@@ -1,0 +1,22 @@
+{
+  "host":"https://iuu.pub/v2",
+  "port":"8082",
+  "is_ssl":false,
+  "ssl_key":"./ssl/2822297_iuu.pub.key",
+  "ssl_pem":"./ssl/2822297_iuu.pub.pem",
+  "token":"nbc38nsx",
+  "mysql":{
+    "host":"118.89.153.31",
+    "port":"3380",
+    "name":"acad",
+    "user":"root",
+    "password":"039213"
+  },
+  "wechat":{
+    "app_id":"wx6e585f1b839f25cd",
+    "app_secret":"09c1d943ffd5873a2fc3a44ebe0331ed"
+  },
+  "yp":{
+    "api_key": "65d12cd6a3d8672fed49c86704477396"
+  }
+}
