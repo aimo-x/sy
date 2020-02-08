@@ -28,7 +28,7 @@ services:
   sy:
     image: golang:1.13.4-buster
     ports:
-      - "8081:8082"
+      - "8082:8082"
     volumes:
       - "${GOLANG}:/var/golang"
     working_dir:
