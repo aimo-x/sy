@@ -1,7 +1,7 @@
 {
   "host":"https://iuu.pub/v2",
   "port":"8082",
-  "is_ssl":false,
+  "is_ssl":true,
   "ssl_key":"./ssl/2822297_iuu.pub.key",
   "ssl_pem":"./ssl/2822297_iuu.pub.pem",
   "token":"nbc38nsx",
