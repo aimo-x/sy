@@ -26,6 +26,9 @@ func AutoMigrate() error {
 	if err != nil {
 		return err
 	}
-	err = db.AutoMigrate(&MugedaForm{}, &MugedaFormContent{}).Error
+	err = db.AutoMigrate(
+		&GacmotorVoiceHeartContent{},
+		&MugedaFormContentDB{}
+	).Error
 	return err
 }

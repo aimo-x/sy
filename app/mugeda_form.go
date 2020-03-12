@@ -20,7 +20,20 @@ type MugedaForm struct {
 
 // MugedaFormContent 木疙瘩表单内容
 type MugedaFormContent struct {
+}
+
+// MugedaFormContentDB 木疙瘩表单内容
+type MugedaFormContentDB struct {
 	gorm.Model
+	MugedaFormID uint   `json:"mugeda_form_id"` // 表单ID
+	Name         string `json:"name"`           // 姓名
+	Position     string `json:"position"`       // 职位
+	Company      string `json:"company"`        // 公司
+	Email        string `json:"email"`          // 电子邮件
+}
+
+// MugedaFormContentPOST 木疙瘩表单内容
+type MugedaFormContentPOST struct {
 	MugedaFormID uint   `json:"mugeda_form_id"` // 表单ID
 	Name         string `json:"name"`           // 姓名
 	Position     string `json:"position"`       // 职位
@@ -51,8 +64,19 @@ func (mfc *MugedaFormContent) Create(c *gin.Context) {
 			return
 		}
 	*/
-	c.BindJSON(&mfc)
-	err = db.Create(&mfc).Error
+	var mfcp MugedaFormContentPOST
+	var mfcd MugedaFormContentDB
+	err = c.BindJSON(&mfcp)
+	if err != nil {
+		rwErr("BindJSON error", err, c)
+		return
+	}
+	mfcd.MugedaFormID = mfcp.MugedaFormID
+	mfcd.Name = mfcp.Name
+	mfcd.Position = mfcp.Position
+	mfcd.Company = mfcp.Company
+	mfcd.Email = mfcp.Email
+	err = db.Create(&mfcd).Error
 	if err != nil {
 		rwErr("mysql error", err, c)
 		return
@@ -63,28 +87,23 @@ func (mfc *MugedaFormContent) Create(c *gin.Context) {
 	sm.Subject = c.Request.FormValue("subject")
 	sm.Title = c.Request.FormValue("title")
 	sm.Desc = c.Request.FormValue("desc")
-	sm.Name = mfc.Name
-	sm.Company = mfc.Company
-	sm.Position = mfc.Position
-	sm.Email = mfc.Email
-	sm.BtnLink = "https://iuu.pub/v2/mugeda_form/view"
+	sm.Name = mfcd.Name
+	sm.Company = mfcd.Company
+	sm.Position = mfcd.Position
+	sm.Email = mfcd.Email
+	sm.BtnLink = "https://iuu.pub/v2/usr/mugeda_form/view/index.html"
 	sm.BinText = "查看所有"
 	err = sm.Send()
 	if err != nil {
 		rwErr("sm.Send error", err, c)
 		return
 	}
-	rwSus(mfc, c)
+	rwSus(mfcd, c)
 }
 
 // Delete 删除
 func (mfc *MugedaFormContent) Delete(c *gin.Context) {
 	mfcid, err := strconv.Atoi(c.Request.FormValue("mfc_id"))
-	if err != nil {
-		rwErr("strconv.Atoi error", err, c)
-		return
-	}
-	mfid, err := strconv.Atoi(c.Request.FormValue("mf_id"))
 	if err != nil {
 		rwErr("strconv.Atoi error", err, c)
 		return
@@ -95,12 +114,13 @@ func (mfc *MugedaFormContent) Delete(c *gin.Context) {
 		return
 	}
 	defer db.Close()
-	err = db.Where("id = ? AND mugeda_form_id = ?", mfcid, mfid).Delete(&mfc).Error
+	var mfcd MugedaFormContentDB
+	err = db.Where("id  = ?", mfcid).Delete(&mfcd).Error
 	if err != nil {
 		rwErr(" db.Where.Delete", err, c)
 		return
 	}
-	rwSus(mfc, c)
+	rwSus(mfcd, c)
 }
 
 // ExportCSV 删除
@@ -115,9 +135,9 @@ func (mfc *MugedaFormContent) ExportCSV(c *gin.Context) {
 		rwErr("mysql error", err, c)
 		return
 	}
-	var mfcs []MugedaFormContent
+	var mfcs []MugedaFormContentDB
 	defer db.Close()
-	err = db.Model(&MugedaFormContent{}).Where("mugeda_form_id = ?", mfid).Find(&mfcs).Error
+	err = db.Model(&MugedaFormContentDB{}).Where("mugeda_form_id = ?", mfid).Find(&mfcs).Error
 	if err != nil {
 		rwErr("db.Where.Delete", err, c)
 		return
@@ -162,12 +182,12 @@ func (mfc *MugedaFormContent) Data(c *gin.Context) {
 		rwErr("mysql error", err, c)
 		return
 	}
-	var mfcs []MugedaFormContent
+	var mfcs []MugedaFormContentDB
 	defer db.Close()
 	err = db.Where("mugeda_form_id = ?", mfid).Limit(limit).Offset(offset).Find(&mfcs).Error
 	if err != nil {
 		rwErr(" db.Where.Delete", err, c)
 		return
 	}
-	rwSus(mfc, c)
+	rwSus(mfcs, c)
 }

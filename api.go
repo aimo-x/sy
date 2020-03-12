@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+var GacmotorVoiceHeart app.GacmotorVoiceHeart
 var mfc app.MugedaFormContent
 
 func api(r *gin.RouterGroup) {
@@ -12,4 +13,5 @@ func api(r *gin.RouterGroup) {
 	//mfcr := r.Group("mugeda_form_content")
 	//mfc.Route(r.Group("mugeda_form_content"))
 	mfc.Route(r.Group("mugeda_form_content"))
+	GacmotorVoiceHeart.Route(r.Group("gacmotor_voice_heart"))
 }

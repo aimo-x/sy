@@ -1,19 +1,22 @@
 {
-  "host":"http://127.0.0.1",
-  "port":"80",
+  "host":"https://iuu.pub/v2",
+  "port":"8082",
   "is_ssl":true,
-  "ssl_key":"./ssl/3209803_t.iuu.pub.key",
-  "ssl_pem":"./ssl/3209803_t.iuu.pub.pem",
+  "ssl_key":"./ssl/2822297_iuu.pub.key",
+  "ssl_pem":"./ssl/2822297_iuu.pub.pem",
   "token":"nbc38nsx",
   "mysql":{
-    "host":"118.89.153.31",
-    "port":"3380",
-    "name":"inch_v2",
+    "host":"127.0.0.1",
+    "port":"3306",
+    "name":"acad",
     "user":"root",
     "password":"039213"
   },
   "wechat":{
-    "app_id":"wxbdb9cd64895da3d3",
-    "app_secret":"25295943ffeaa1e9e8b7de4c8588eaf0"
+    "app_id":"wx6e585f1b839f25cd",
+    "app_secret":"09c1d943ffd5873a2fc3a44ebe0331ed"
+  },
+  "yp":{
+    "api_key": "65d12cd6a3d8672fed49c86704477396"
   }
 }
