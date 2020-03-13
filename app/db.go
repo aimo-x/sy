@@ -22,13 +22,14 @@ func Mysql() (db *gorm.DB, err error) {
 
 // AutoMigrate ...
 func AutoMigrate() error {
-	db, err := gorm.Open("mysql", conf.GetConf().Mysql.User+":"+conf.GetConf().Mysql.Password+"@tcp("+conf.GetConf().Mysql.Host+":"+conf.GetConf().Mysql.Port+")/"+conf.GetConf().Mysql.Name+"?charset=utf8&parseTime=True&loc=Local")
+	db, err := Mysql()
 	if err != nil {
 		return err
 	}
+	defer db.Close()
 	err = db.AutoMigrate(
 		&GacmotorVoiceHeartContent{},
-		&MugedaFormContentDB{}
+		&MugedaFormContentDB{},
 	).Error
 	return err
 }

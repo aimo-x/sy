@@ -5,13 +5,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var GacmotorVoiceHeart app.GacmotorVoiceHeart
 var mfc app.MugedaFormContent
+var GacmotorVoiceHeart app.GacmotorVoiceHeart
+var ConstructionDevelopment app.ConstructionDevelopment
 
 func api(r *gin.RouterGroup) {
-
-	//mfcr := r.Group("mugeda_form_content")
-	//mfc.Route(r.Group("mugeda_form_content"))
 	mfc.Route(r.Group("mugeda_form_content"))
 	GacmotorVoiceHeart.Route(r.Group("gacmotor_voice_heart"))
+	// 注册cd route
+	if err := ConstructionDevelopment.AutoMigrate(); err != nil {
+		panic(err)
+	}
+	ConstructionDevelopment.Route(r.Group("construction_development"))
+
 }

@@ -1,28 +1,35 @@
 package app
 
-import "github.com/jinzhu/gorm"
+import (
+	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+	"github.com/jinzhu/gorm"
+)
+
 // ConstructionDevelopment struct
-type ConstructionDevelopment struct{
+type ConstructionDevelopment struct {
+}
+
+func (cd *ConstructionDevelopment) AutoMigrate() error {
+	db, err := Mysql()
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+	err = db.AutoMigrate(
+		&ConstructionDevelopmentH5Vote{},
+		&ConstructionDevelopmentH5VoteViewIPLog{},
+		&ConstructionDevelopmentH5VoteData{},
+	).Error
+	return err
 }
 
 // Route ...
 func (cd *ConstructionDevelopment) Route(r *gin.RouterGroup) {
 	r.POST("h5/vote/view/ip/log", cd.ViewIPLogCreate)
+
 }
 
-// ViewLog ... 
-func (cd *ConstructionDevelopment) ViewIPLogCreate(c *gin.Context){
-	type Data struct {
-		ConstructionDevelopmentH5VoteUUID string `json:"construction_development_h5_vote_uuid"` //  uuid
-		IP                                string // ip地址记录
-	}
-	var data Data
-	err := c.BindJSON(&data)
-	if err != nil {
-		rwErr("BindJSON error", err, c)
-		return
-	}
-}
 // ConstructionDevelopmentH5Vote 建发投票
 type ConstructionDevelopmentH5Vote struct {
 	gorm.Model
@@ -39,24 +46,71 @@ type ConstructionDevelopmentH5VoteViewIPLog struct {
 	IP                                string // ip地址记录
 }
 
+// ViewIPLogCreate 日志
+func (cd *ConstructionDevelopment) ViewIPLogCreate(c *gin.Context) {
+	db, err := Mysql()
+	if err != nil {
+		rwErr("数据库连接错误", err, c)
+		return
+	}
+	defer db.Close()
+	var cdhvil ConstructionDevelopmentH5VoteViewIPLog
+	cdhvil.ConstructionDevelopmentH5VoteUUID = c.Request.FormValue("construction_development_h5_vote_uuid")
+	cdhvil.IP = c.GetHeader("X-Real-IP")
+	err = db.Create(&cdhvil).Error
+	if err != nil {
+		rwErr("数据库连接错误", err, c)
+		return
+	}
+	rwSus(cdhvil, c)
+}
+
 // ConstructionDevelopmentH5VoteData 建发投票
 type ConstructionDevelopmentH5VoteData struct {
 	gorm.Model
-	VoteCount int // 票数
-	UUID      string
-	ConstructionDevelopmentH5VotePost
+	VoteCount                         int // 票数
+	UUID                              string
+	ConstructionDevelopmentH5VoteUUID string `json:"construction_development_h5_vote_uuid"` //  uuid
+	ConstructionDevelopmentH5VoteDataPost
 }
 
-// ConstructionDevelopmentH5VotePost data
-type ConstructionDevelopmentH5VotePost struct {
-	ConstructionDevelopmentH5VoteUUID string `json:"construction_development_h5_vote_uuid"` //  uuid
-	OpenID                            string `json:"open_id"`
-	Name                              string `json:"name"`
-	Phone                             string `json:"phone"`
-	City                              string `json:"city"`
-	Address                           string `json:"address"`
-	CompleteImage                     string `json:"complete_image"`
-	ProcessImages                     string `json:"process_images"`
+// ConstructionDevelopmentH5VoteDataPost data
+type ConstructionDevelopmentH5VoteDataPost struct {
+	OpenID        string `json:"open_id"`
+	Name          string `json:"name"`
+	Phone         string `json:"phone"`
+	City          string `json:"city"`
+	Address       string `json:"address"`
+	CompleteImage string `json:"complete_image"`
+	ProcessImages string `json:"process_images"`
+}
+
+// VoteAdd 投票数据
+func (cd *ConstructionDevelopment) CreateVoteData(c *gin.Context) {
+	db, err := Mysql()
+	if err != nil {
+		rwErr("数据库连接错误", err, c)
+		return
+	}
+	defer db.Close()
+
+	var cdhvdp ConstructionDevelopmentH5VoteDataPost
+	c.BindJSON(&cdhvdp)
+	if err != nil {
+		rwErr("数据库连接错误", err, c)
+		return
+	}
+	var cdhvd ConstructionDevelopmentH5VoteData
+	cdhvd.VoteCount = 0
+	cdhvd.UUID = uuid.New().String()
+	cdhvd.ConstructionDevelopmentH5VoteUUID = c.Request.FormValue("construction_development_h5_vote_uuid")
+	cdhvd.ConstructionDevelopmentH5VoteDataPost = cdhvdp
+	err = db.Create(&cdhvd).Error
+	if err != nil {
+		rwErr("数据库写入错误", err, c)
+		return
+	}
+	rwSus(cdhvd, c)
 }
 
 // ConstructionDevelopmentH5VoteLog 投票日志
