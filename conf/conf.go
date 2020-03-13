@@ -59,7 +59,7 @@ func Redis() *redis.Options {
 	return &redis.Options{
 		Addr:     "118.89.153.31:6379",
 		Password: "039213", // no password set
-		DB:       0,        // use default DB
+		DB:       1,        // use default DB
 	}
 }
 
