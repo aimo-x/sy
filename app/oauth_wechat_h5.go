@@ -1,7 +1,6 @@
 package app
 
 import (
-	"encoding/base64"
 	"errors"
 	"fmt"
 	"math/rand"
@@ -18,14 +17,20 @@ import (
 	"github.com/go-redis/redis"
 )
 
-const redirectURI = "https://iuu.pub/v2/oauth_wechat_h5/callback"
+const redirectURI = "https://iuu.pub/v2/api/oauth_wechat_h5/callback"
 
 // OauthWechatH5 ...
 type OauthWechatH5 struct {
-	UnionID  string `json:"union_id"`
-	OpenID   string `json:"open_id"`
-	AppID    string `json:"app_id"`
-	NickName string `json:"nick_name"`
+	OpenID   string
+	AppID    string
+	NickName string
+}
+
+// Route ...
+func (uw *OauthWechatH5) Route(r *gin.RouterGroup) {
+	r.Any("callback", uw.CallBack)
+	r.GET("oauthurl", uw.OauthURL)
+	r.GET("authorization_token", uw.UseCodeToToken)
 }
 
 // MiddleWare 中间件
@@ -33,15 +38,18 @@ func (uw *OauthWechatH5) MiddleWare(c *gin.Context) {
 	jwtToken := c.GetHeader("Authorization")
 	if len(jwtToken) < 20 {
 		rwErr("没有授权信息", errors.New("Not Find Authorization"), c)
+		c.Abort()
 		return
 	}
 	var j jwt.WeChat
-	unionid, openid, appid, nickname, err := j.Verify(jwtToken)
+	openid, appid, nickname, err := j.Verify(jwtToken)
 	if err != nil {
 		rwErr("验证授权失败", err, c)
+		c.Abort()
 		return
 	}
-	uw.UnionID = unionid
+	fmt.Println(openid, appid, nickname, err)
+
 	uw.OpenID = openid
 	uw.AppID = appid
 	uw.NickName = nickname
@@ -68,7 +76,7 @@ func (uw *OauthWechatH5) CallBack(c *gin.Context) {
 		return
 	}
 	var j jwt.WeChat
-	token, err := j.Token(userInfo.Unionid, userInfo.OpenID, wx.Context.AppID, base64.StdEncoding.EncodeToString([]byte(userInfo.Nickname)))
+	token, err := j.Token(userInfo.OpenID, wx.Context.AppID, userInfo.Nickname)
 	if err != nil {
 		c.Writer.Write([]byte("<title>授权登陆失败</title><h1>" + fmt.Sprint(err) + "</h1>"))
 		return
@@ -154,12 +162,26 @@ func (uw *OauthWechatH5) GetWeChat() (wx *wechat.Wechat) {
 	var opts cache.RedisOpts
 	opts.Host = conf.Redis().Addr
 	opts.Password = conf.Redis().Password
-	opts.Database = 1
+	opts.Database = conf.Redis().DB
 	Redis := cache.NewRedis(&opts)
 	var cfg wechat.Config
-	cfg.AppID = "wxbdb9cd64895da3d3"                   // "wxa67a64f664dfba26"                   // conf.GetConf().WeChat.AppID         // "wxa67a64f664dfba26"
-	cfg.AppSecret = "25295943ffeaa1e9e8b7de4c8588eaf0" // "2ddcf1edc8a54ca2de8b2ebd8f15fcca" // conf.GetConf().WeChat.AppSecret //  "2ddcf1edc8a54ca2de8b2ebd8f15fcca"
+	cfg.AppID = conf.GetConf().WeChat.AppID
+	cfg.AppSecret = conf.GetConf().WeChat.AppSecret
 	cfg.Cache = Redis
 	wx = wechat.NewWechat(&cfg)
 	return wx
+
+	/*
+		var opts cache.RedisOpts
+		opts.Host = conf.Redis().Addr
+		opts.Password = conf.Redis().Password
+		opts.Database = 1
+		Redis := cache.NewRedis(&opts)
+		var cfg wechat.Config
+		cfg.AppID = "wxbdb9cd64895da3d3"                   // "wxa67a64f664dfba26"                   // conf.GetConf().WeChat.AppID         // "wxa67a64f664dfba26"
+		cfg.AppSecret = "25295943ffeaa1e9e8b7de4c8588eaf0" // "2ddcf1edc8a54ca2de8b2ebd8f15fcca" // conf.GetConf().WeChat.AppSecret //  "2ddcf1edc8a54ca2de8b2ebd8f15fcca"
+		cfg.Cache = Redis
+		wx = wechat.NewWechat(&cfg)
+		return wx
+	*/
 }
