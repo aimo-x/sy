@@ -28,8 +28,11 @@ func AutoMigrate() error {
 	}
 	defer db.Close()
 	err = db.AutoMigrate(
-		&GacmotorVoiceHeartContent{},
-		&MugedaFormContentDB{},
+		// &GacmotorVoiceHeartContent{},
+		// &MugedaFormContentDB{},
+		&ConstructionDevelopmentH5VoteData{},
+		&ConstructionDevelopmentH5VoteLog{},
+		&XlServiceOrder{},
 	).Error
 	return err
 }

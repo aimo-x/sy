@@ -17,3 +17,6 @@ func rwErr(msg, err interface{}, c *gin.Context) {
 func rwSus(data interface{}, c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": "success", "msg": "请求成功", "data": data})
 }
+func rwSusMsg(msg, data interface{}, c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{"code": "success", "msg": msg, "data": data})
+}

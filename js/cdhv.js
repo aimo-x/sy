@@ -36,7 +36,8 @@ return false;
 // eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBfaWQiOiJ3eDZlNTg1ZjFiODM5ZjI1Y2QiLCJleHAiOjE1OTcwODE5MjYsIm5iZiI6MTU4NDEyMTkyNiwibmlja19uYW1lIjoiNlptRzVMcVIiLCJvcGVuX2lkIjoib2RWWXkxWnUxRENtZkFxamREY19KbVJtdHVpSSIsInVuaW9uX2lkIjoiIn0.IRrIhxz2-IH1zSEZ8haY2AqetprorH_JDWbdXyzDL-w
 Authorization_token = getCookie("authorization_token_cdhv")
 if(search("test") == "true"){
-    Authorization_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBpZCI6Ind4NmU1ODVmMWI4MzlmMjVjZCIsImV4cCI6MTcxMzcyMzA5OSwibmJmIjoxNTg0MTIzMDk5LCJuaWNrbmFtZSI6IumZhuS6kSIsIm9wZW5pZCI6Im9kVll5MVp1MURDbWZBcWpkRGNfSm1SbXR1aUkiLCJ1bmlvbmlkIjoiIn0.-krpfBpdJhja139EzYwRTuc90AyLL7pbic2KdjJLw1s"
+    Authorization_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBpZCI6Ind4NmU1ODVmMWI4MzlmMjVjZCIsImV4cCI6MTcxNDEzNjU5MCwibmJmIjoxNTg0NTM2NTkwLCJuaWNrbmFtZSI6IkxpWPCfjYkiLCJvcGVuaWQiOiJvZFZZeTFTbWlDUnVrYVdSX25Mbm9QcGtLM1NNIn0.Uo8dQWOL86l5WkfKUzKiWTROdoVEq5PUwi2zl7A6igI"
+    // Authorization_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBpZCI6Ind4NmU1ODVmMWI4MzlmMjVjZCIsImV4cCI6MTcxMzcyMzA5OSwibmJmIjoxNTg0MTIzMDk5LCJuaWNrbmFtZSI6IumZhuS6kSIsIm9wZW5pZCI6Im9kVll5MVp1MURDbWZBcWpkRGNfSm1SbXR1aUkiLCJ1bmlvbmlkIjoiIn0.-krpfBpdJhja139EzYwRTuc90AyLL7pbic2KdjJLw1s"
 }
 wechat_oauth = () => {
     // var reuri = window.location.origin+window.location.pathname;
@@ -193,15 +194,89 @@ next_one = () => {
 updateImage = (em) => {
     em.alpha = 1
 }
+var myCity = "";
 
+ifCity = () => {
+    var scene = mugeda.scene
+    if(myCity == ""){
+        scene.gotoAndPause(0, 6) // 城市选择页面
+    }else{
+        // 赋值给
+        var city = scene.getObjectByName("城市")
+        city.text = myCity
+        // 设置城市
+        setCommunity()
+    }
+}
+
+ // 进入报名按钮 -> 获取自己的投票数据
+
+getVoteData = () => {
+    var scene = mugeda.scene
+    var load = document.createElement("img");
+    load.src = scene.getObjectByName("加载动画").src
+    load.style.width = "60%"
+    load.type = "range";
+    swal({
+        buttons: false,
+        content: load,
+    })
+
+    fetch(domain+"/v2/api/construction_development/h5/vote/data?construction_development_h5_vote_uuid="+uuid,{
+        headers: {
+            'Authorization': Authorization_token,
+        },
+        method: 'GET', // *GET, POST, PUT, DELETE, etc.
+        mode: 'cors', // no-cors, cors, *same-origin
+        redirect: 'follow', // manual, *follow, error
+        referrer: 'no-referrer', // *client, no-referrer
+    })
+    .then((res)=>res.json())
+    .then((res)=>{ 
+        swal.close()
+        if(res.code == "success"){
+            var bh = scene.getObjectByName("编号")
+            bh.text = res.data.number.toString().length == 1 ? "00" + res.data.number.toString() : res.data.number.toString().length == 2 ? "0" + res.data.number.toString() : res.data.number.toString()
+            myCity = res.data.city
+            ifCity()
+        }else{
+            
+            if(res.msg == "Not Find OpenID"){
+
+            }else{
+                swal("提交失败", res.msg, "error")
+            }
+            ifCity()
+        }
+    })
+    .catch((err)=>{
+        swal.close()
+        swal("提交失败", err, "error")
+    })
+}
+
+
+// 返回按钮设置
+setCommunityBackPage = () => {
+    var scene = mugeda.scene
+    if(myCity == ""){
+        scene.gotoAndPause(0, 6) // 上一页
+    }else{
+        scene.gotoAndPause(0, 5) // 存在城市直接返回5
+    }
+}
+ // 获取授权信息 = 
+ getAuth = () => {
+     swal(Authorization_token);
+ }
 var init_src = ""
 // mugeda init
 mugeda.addEventListener("renderready", function(){
     scene = mugeda.scene
     setCity()
     init_src = scene.getObjectByName("completeImage").src
-    console.log(init_src)
-    var vConsole = new VConsole();
+    // console.log(init_src)
+    // var vConsole = new VConsole();
 });
 // 参与活动
 JoinVote = () => {
@@ -290,17 +365,19 @@ JoinVote = () => {
     })
     .then((res)=>res.json())
     .then((res)=>{ 
-    if(res.code == "success"){
-        // swal("提交失败", res.msg, "error")
-        var bh = scene.getObjectByName("编号")
-        bh.text = res.data.number.toString().length == 1 ? "00" + res.data.number.toString() : res.data.number.toString().length == 2 ? "0" + res.data.number.toString() : res.data.number.toString()
-        console.log(res.data)
-        scene.gotoAndPause(0, 9) // 跳转到相对于某页的某帧并暂停
-    }else{
-       swal("提交失败", res.msg, "error")
-    }
+        swal.close()
+        if(res.code == "success"){
+            // swal("提交失败", res.msg, "error")
+            var bh = scene.getObjectByName("编号")
+            bh.text = res.data.number.toString().length == 1 ? "00" + res.data.number.toString() : res.data.number.toString().length == 2 ? "0" + res.data.number.toString() : res.data.number.toString()
+            console.log(res.data)
+            scene.gotoAndPause(0, 9) // 跳转到相对于某页的某帧并暂停
+        }else{
+        swal("提交失败", res.msg, "error")
+        }
     })
     .catch((err)=>{
+        swal.close()
         swal("提交失败", err, "error")
     })
 }

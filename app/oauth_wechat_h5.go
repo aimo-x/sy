@@ -59,12 +59,14 @@ func (uw *OauthWechatH5) MiddleWare(c *gin.Context) {
 // CallBack ...
 func (uw *OauthWechatH5) CallBack(c *gin.Context) {
 	wx := uw.GetWeChat()
+
 	oauth := wx.GetOauth()
 	rat, err := oauth.GetUserAccessToken(c.Request.FormValue("code"))
 	if err != nil {
 		rwErr("授权错误", err, c)
 		return
 	}
+
 	userInfo, err := oauth.GetUserInfo(rat.AccessToken, rat.OpenID)
 	if err != nil {
 		c.Writer.Write([]byte("<title>授权登陆失败</title><h1>" + userInfo.ErrMsg + "</h1>"))
