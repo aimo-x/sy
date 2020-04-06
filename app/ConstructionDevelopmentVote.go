@@ -3,7 +3,6 @@ package app
 
 // 建发投票
 import (
-	"encoding/base64"
 	"strconv"
 	"time"
 
@@ -252,74 +251,77 @@ func (cd *ConstructionDevelopment) UpdatesVoteData(c *gin.Context) {
 
 // VoteCont 进行投票 更新投票信息
 func (cd *ConstructionDevelopment) VoteCont(c *gin.Context) {
-	if c.Request.FormValue("construction_development_h5_vote_uuid") == "" {
-		rwErr("缺少活动ID", "construction_development_h5_vote_uuid", c)
-		return
-	}
-	db, err := Mysql()
-	if err != nil {
-		rwErr("数据库连接错误", err, c)
-		return
-	}
-	defer db.Close()
-	// 开启事务
-	tx := db.Begin()
-	defer func() {
-		if r := recover(); r != nil {
-			tx.Rollback()
+	rwErr("活动已截止投票", "活动已截止投票", c)
+	/*
+		if c.Request.FormValue("construction_development_h5_vote_uuid") == "" {
+			rwErr("缺少活动ID", "construction_development_h5_vote_uuid", c)
+			return
 		}
-	}()
-	// 查询数据库 投票记录条数
-	var cl ConstructionDevelopmentH5VoteLog
-	var timeNow = time.Now()
-	var n int
-	row1 := tx.Model(&cl).Where("created_at > ? AND from_open_id = ?", time.Date(timeNow.Year(), timeNow.Month(), timeNow.Day(), 0, 0, 0, 0, timeNow.Location()), cd.OauthWechatH5.OpenID).Count(&n)
-	if row1.Error != nil { // 非没有记录
-		tx.Rollback()
-		rwErr("Not Find Log", row1.Error, c)
-		return
-	}
-	if n > 4 {
-		tx.Rollback()
-		rwErr("今日投票已达上限", row1.Error, c)
-		return
-	}
+		db, err := Mysql()
+		if err != nil {
+			rwErr("数据库连接错误", err, c)
+			return
+		}
+		defer db.Close()
+		// 开启事务
+		tx := db.Begin()
+		defer func() {
+			if r := recover(); r != nil {
+				tx.Rollback()
+			}
+		}()
+		// 查询数据库 投票记录条数
+		var cl ConstructionDevelopmentH5VoteLog
+		var timeNow = time.Now()
+		var n int
+		row1 := tx.Model(&cl).Where("created_at > ? AND from_open_id = ?", time.Date(timeNow.Year(), timeNow.Month(), timeNow.Day(), 0, 0, 0, 0, timeNow.Location()), cd.OauthWechatH5.OpenID).Count(&n)
+		if row1.Error != nil { // 非没有记录
+			tx.Rollback()
+			rwErr("Not Find Log", row1.Error, c)
+			return
+		}
+		if n > 4 {
+			tx.Rollback()
+			rwErr("今日投票已达上限", row1.Error, c)
+			return
+		}
 
-	id, err := strconv.Atoi(c.Request.FormValue("id"))
-	if err != nil {
-		tx.Rollback()
-		rwErr("strconv.Atoi error", err, c)
-		return
-	}
-	// 写入日志
-	cl.ConstructionDevelopmentH5VoteUUID = c.Request.FormValue("construction_development_h5_vote_uuid")
-	cl.FromNickName = base64.StdEncoding.EncodeToString([]byte(cd.OauthWechatH5.NickName))
-	cl.FromOpenID = cd.OauthWechatH5.OpenID
-	cl.ConstructionDevelopmentH5VoteDataID = uint(id)
-	cl.IP = c.ClientIP()
-	err = tx.Create(&cl).Error
-	if err != nil {
-		tx.Rollback()
-		rwErr("tx.Create(&cl)", err, c)
-		return
-	}
-	// 更新投票数
-	var cdhvd ConstructionDevelopmentH5VoteData
-	row := tx.Where("id = ?", uint(id)).First(&cdhvd)
-	if row.Error != nil || row.RecordNotFound() {
-		tx.Rollback()
-		rwErr("Not Find ID", row.Error, c)
-		return
-	}
-	cdhvd.VoteCount = cdhvd.VoteCount + 1
-	row2 := tx.Save(&cdhvd)
-	if row2.Error != nil || row2.RecordNotFound() {
-		tx.Rollback()
-		rwErr("Not Find ID", row2.Error, c)
-		return
-	}
-	tx.Commit()
-	rwSus(cdhvd, c)
+		id, err := strconv.Atoi(c.Request.FormValue("id"))
+		if err != nil {
+			tx.Rollback()
+			rwErr("strconv.Atoi error", err, c)
+			return
+		}
+		// 写入日志
+		cl.ConstructionDevelopmentH5VoteUUID = c.Request.FormValue("construction_development_h5_vote_uuid")
+		cl.FromNickName = base64.StdEncoding.EncodeToString([]byte(cd.OauthWechatH5.NickName))
+		cl.FromOpenID = cd.OauthWechatH5.OpenID
+		cl.ConstructionDevelopmentH5VoteDataID = uint(id)
+		cl.IP = c.ClientIP()
+		err = tx.Create(&cl).Error
+		if err != nil {
+			tx.Rollback()
+			rwErr("tx.Create(&cl)", err, c)
+			return
+		}
+		// 更新投票数
+		var cdhvd ConstructionDevelopmentH5VoteData
+		row := tx.Where("id = ?", uint(id)).First(&cdhvd)
+		if row.Error != nil || row.RecordNotFound() {
+			tx.Rollback()
+			rwErr("Not Find ID", row.Error, c)
+			return
+		}
+		cdhvd.VoteCount = cdhvd.VoteCount + 1
+		row2 := tx.Save(&cdhvd)
+		if row2.Error != nil || row2.RecordNotFound() {
+			tx.Rollback()
+			rwErr("Not Find ID", row2.Error, c)
+			return
+		}
+		tx.Commit()
+		rwSus(cdhvd, c)
+	*/
 }
 
 // GetVoteData 获取自己的投票信息/获取到可以进行更新操作

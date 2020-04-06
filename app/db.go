@@ -2,6 +2,7 @@ package app
 
 import (
 	"github.com/aimo-x/sy/conf"
+	"github.com/aimo-x/sy/model"
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql" // mysql
@@ -33,6 +34,11 @@ func AutoMigrate() error {
 		&ConstructionDevelopmentH5VoteData{},
 		&ConstructionDevelopmentH5VoteLog{},
 		&XlServiceOrder{},
+		&model.Campaign{},
+		&model.FpGame{},
+		&model.FpGameLog{},
+		&model.User{},
+		&model.FpGameDo{},
 	).Error
 	return err
 }

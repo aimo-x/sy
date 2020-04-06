@@ -6,8 +6,8 @@
   "ssl_pem":"./ssl/2822297_iuu.pub.pem",
   "token":"nbc38nsx",
   "mysql":{
-    "host":"118.89.153.31",
-    "port":"3357",
+    "host":"minis.iuu.pub",
+    "port":"3380",
     "name":"acad",
     "user":"root",
     "password":"039213"
